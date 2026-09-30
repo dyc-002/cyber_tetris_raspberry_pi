@@ -1,0 +1,17 @@
+{
+  "name": "Cyber Tetris",
+  "short_name": "CyberTetris",
+  "description": "Cyberpunk Tetris game with leaderboard, player profiles, and Raspberry Pi support.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070a0d",
+  "theme_color": "#0b1217",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Tetris Leaderboard | Live High Scores</title>
+  <meta name="description" content="View the Cyber Tetris leaderboard, search player scores, and export the database to CSV.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://localhost:3000/leaderboard.html">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cyber Tetris Leaderboard">
+  <meta property="og:description" content="Search players and review live high scores in the Cyber Tetris database.">
+  <meta property="og:image" content="http://localhost:3000/og-image.svg">
+  <meta property="og:url" content="http://localhost:3000/leaderboard.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cyber Tetris Leaderboard">
+  <meta name="twitter:description" content="Search player scores and download the leaderboard CSV.">
+  <meta name="twitter:image" content="http://localhost:3000/og-image.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CYBER<span>TETRIS</span></div>
+    <a href="/">← BACK TO GAME</a>
+  </header>
+  <main class="shell leaderboard-page leaderboard-shell">
+    <p class="eyebrow">LIVE DATABASE</p>
+    <h1>TOP <span>PLAYERS</span></h1>
+    <p class="intro">Search by username to find any player’s saved high score. Emails stay private and are not shown on the public leaderboard.</p>
+    <div class="badge-row">
+      <div class="badge">Live Sync</div>
+      <div class="badge">Username Search</div>
+      <div class="badge">Private Emails</div>
+    </div>
+    <div class="search-row">
+      <input id="searchInput" type="search" placeholder="Search by username..." aria-label="Search leaderboard by username">
+      <button id="searchBtn" class="btn primary small">SEARCH</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>USERNAME</th><th>HIGH SCORE</th></tr></thead>
+        <tbody id="board"><tr><td colspan="3">Loading...</td></tr></tbody>
+      </table>
+    </div>
+    <p id="updated" class="message"></p>
+  </main>
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    async function loadBoard(search = '') {
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      const res = await fetch(`/api/leaderboard?${params.toString()}`);
+      const data = await res.json();
+      const board = document.getElementById('board');
+      if (!data.rows || !data.rows.length) {
+        board.innerHTML = '<tr><td colspan="3">No matching players found.</td></tr>';
+        document.getElementById('updated').textContent = 'No results for this search.';
+        return;
+      }
+      board.innerHTML = data.rows.map((p, i) =>
+        `<tr><td>${p.rank || i + 1}</td><td>${escapeHtml(p.username || 'Unknown')}</td><td>${Number(p.score || 0).toLocaleString()}</td></tr>`
+      ).join('');
+      document.getElementById('updated').textContent = search ? `Search results for: ${search}` : 'Live database data';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    }
+
+    searchBtn.addEventListener('click', () => {
+      loadBoard(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        loadBoard(searchInput.value.trim());
+      }
+    });
+
+    loadBoard();
+    setInterval(() => loadBoard(searchInput.value.trim()), 5000);
+  </script>
+</body>
+</html>

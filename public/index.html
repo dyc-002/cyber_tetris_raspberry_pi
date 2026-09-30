@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Tetris | Arcade Puzzle Game with Leaderboards</title>
+  <meta name="description" content="Play Cyber Tetris, a neon cyberpunk arcade puzzle game with leaderboard tracking, player profiles, and browser-based gameplay.">
+  <meta name="keywords" content="Cyber Tetris, arcade game, puzzle game, cyberpunk Tetris, leaderboard, Raspberry Pi game, online Tetris">
+  <meta name="author" content="Cyber Tetris">
+  <meta name="theme-color" content="#0b1217">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://localhost:3000/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cyber Tetris | Arcade Puzzle Game">
+  <meta property="og:description" content="A cyberpunk-inspired Tetris game with high-score tracking, leaderboard search, and player profiles.">
+  <meta property="og:image" content="http://localhost:3000/og-image.svg">
+  <meta property="og:url" content="http://localhost:3000/">
+  <meta property="og:site_name" content="Cyber Tetris">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cyber Tetris | Arcade Puzzle Game">
+  <meta name="twitter:description" content="Play Cyber Tetris and compete on the live leaderboard.">
+  <meta name="twitter:image" content="http://localhost:3000/og-image.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CYBER<span>TETRIS</span></div>
+    <a href="leaderboard.html">LEADERBOARD ↗</a>
+  </header>
+
+  <div id="introScreen" class="intro-screen">
+    <div class="intro-panel">
+      <div class="intro-scanlines"></div>
+      <div class="intro-glow"></div>
+      <p class="eyebrow">BOOT SEQUENCE</p>
+      <h2>CYBER<span>TETRIS</span></h2>
+      <p class="intro-copy">Secure the stack. Survive the breach. Protect the network.</p>
+      <div class="boot-status-wrap">
+        <div class="boot-status-labels">
+          <span>INITIALIZATION</span>
+          <strong id="bootStatusText">LOADING CORE</strong>
+        </div>
+        <div class="boot-progress">
+          <div id="bootProgressFill" class="boot-progress-fill"></div>
+        </div>
+      </div>
+      <div class="intro-metrics">
+        <div><span>MODE</span><strong>ARCADE</strong></div>
+        <div><span>GRID</span><strong>10x20</strong></div>
+        <div><span>STATUS</span><strong>ACTIVE</strong></div>
+      </div>
+      <button id="introStartBtn" class="btn primary press-start">ENTER NODE</button>
+    </div>
+  </div>
+
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">RASPBERRY PI • CYBER SECURITY ARCADE</p>
+      <h1>STACK. SURVIVE.<br><span>SECURE.</span></h1>
+      <p class="intro">Classic falling-block gameplay with a cyber-security twist. Play as a guest or sign in to save your score.</p>
+    </section>
+
+    <section class="info-panel panel">
+      <div class="info-header">
+        <p class="eyebrow">HOME</p>
+        <h2>How to play and how this game works</h2>
+      </div>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <h3>How to play</h3>
+          <p>Stack falling blocks to complete full rows. Each completed row clears and increases your score, while the pace speeds up to keep the action intense.</p>
+          <ul>
+            <li>Move with A / D or the joystick</li>
+            <li>Rotate with W or button 8</li>
+            <li>Drop with S or the stick down position</li>
+            <li>Hard drop with Space</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <h3>About the game</h3>
+          <p>Cyber Tetris was created as a cyber-themed arcade prototype using a browser-based game loop, custom UI styling, and a responsive score system designed for Raspberry Pi setups and modern web play.</p>
+          <p>It combines classic falling-block gameplay with a polished cyber security aesthetic and a live leaderboard for competitive replay.</p>
+        </article>
+
+        <article class="info-card">
+          <h3>Scoring & leaderboard</h3>
+          <p>Points are awarded for line clears and higher levels. Your best score is stored once you sign in, and the leaderboard ranks players by their top result.</p>
+          <ul>
+            <li>Score grows with clear count and level</li>
+            <li>Guest runs are local only</li>
+            <li>Signed-in players can save and compare scores</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="authPanel" class="panel auth">
+      <h2>Choose how to play</h2>
+      <div class="auth-grid">
+        <button id="guestBtn" class="btn secondary">PLAY AS GUEST</button>
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+          <label>Username</label>
+          <input id="username" type="text" placeholder="CyberPlayer" maxlength="24" autocomplete="nickname">
+          <button id="loginBtn" class="btn primary">SIGN IN & PLAY</button>
+        </div>
+      </div>
+      <p id="authMessage" class="message"></p>
+    </section>
+
+    <div id="gamePanelWrap" class="game-panel-shell">
+      <section id="gamePanel" class="game-layout hidden">
+        <div class="game-card">
+          <div id="fxLayer" class="fx-layer" aria-hidden="true"></div>
+          <canvas id="game" width="300" height="600"></canvas>
+          <div class="controls">
+            <span>A / D MOVE</span><span>S DROP</span><span>W ROTATE</span><span>SPACE HARD DROP</span>
+          </div>
+          <div id="touchControls" class="touch-controls">
+            <button class="touch-btn" data-touch="left" aria-label="Move left">◀</button>
+            <button class="touch-btn" data-touch="rotate" aria-label="Rotate">⟳</button>
+            <button class="touch-btn" data-touch="down" aria-label="Soft drop">▼</button>
+            <button class="touch-btn" data-touch="hardDrop" aria-label="Hard drop">⤓</button>
+            <button class="touch-btn" data-touch="right" aria-label="Move right">▶</button>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="stat score-stat"><span>SCORE</span><strong id="score">0</strong></div>
+          <div class="stat level-stat"><span>LEVEL</span><strong id="level">1</strong></div>
+          <div class="stat lines-stat"><span>LINES</span><strong id="lines">0</strong></div>
+          <div class="stat status-stat"><span>STATUS</span><strong id="status">READY</strong></div>
+          <div id="controllerIndicator" class="controller-indicator offline" aria-live="polite">
+            <span class="controller-dot"></span>
+            <strong>CONTROLLER OFFLINE</strong>
+          </div>
+          <div class="next-box">
+            <span>NEXT 3</span>
+            <canvas id="next" width="180" height="120"></canvas>
+          </div>
+          <button id="startBtn" class="btn primary">START GAME</button>
+          <button id="pauseBtn" class="btn secondary small">PAUSE</button>
+          <button id="musicToggleBtn" class="btn secondary small">MUSIC: ON</button>
+          <button id="soundToggleBtn" class="btn secondary small">SFX: ON</button>
+          <button id="themeToggleBtn" class="btn secondary small">THEME: NEON</button>
+          <button id="settingsBtn" class="btn secondary small">KEYBINDS</button>
+          <button id="calibrationBtn" class="btn secondary small">JOYSTICK CAL</button>
+          <button id="fullscreenBtn" class="btn secondary small">FULL SCREEN</button>
+          <a class="leader-link" href="leaderboard.html">VIEW LEADERBOARD →</a>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <div id="calibrationOverlay" class="settings-overlay hidden">
+    <div class="settings-panel calibration-panel">
+      <div class="settings-header">
+        <div>
+          <p class="eyebrow">JOYSTICK SETUP</p>
+          <h2>CALIBRATION</h2>
+        </div>
+        <button id="closeCalibrationBtn" class="icon-btn" aria-label="Close calibration">✕</button>
+      </div>
+
+      <div class="profile-row">
+        <button class="profile-btn active" data-profile="arcade">Arcade Pad</button>
+        <button class="profile-btn" data-profile="classic">Classic Keyboard</button>
+      </div>
+
+      <div class="profile-summary">
+        <h3>JoyToKey output</h3>
+        <ul id="profileSummaryList">
+          <li><span>Move Left</span><strong>ArrowLeft</strong></li>
+          <li><span>Move Right</span><strong>ArrowRight</strong></li>
+          <li><span>Soft Drop</span><strong>ArrowDown</strong></li>
+          <li><span>Rotate</span><strong>ArrowUp</strong></li>
+          <li><span>Hard Drop</span><strong>Space</strong></li>
+          <li><span>Pause</span><strong>KeyP</strong></li>
+        </ul>
+      </div>
+
+      <div class="calibration-actions">
+        <button id="profileUseBtn" class="btn primary small">USE PROFILE</button>
+        <button id="profileDefaultsBtn" class="btn secondary small">RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsOverlay" class="settings-overlay hidden">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <div>
+          <p class="eyebrow">CONTROL SYSTEM</p>
+          <h2>KEYBINDS</h2>
+        </div>
+        <button id="closeSettingsBtn" class="icon-btn" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="settings-list">
+        <div class="setting-row"><span>Move Left</span><button class="bind-btn" data-action="left">ArrowLeft</button></div>
+        <div class="setting-row"><span>Move Right</span><button class="bind-btn" data-action="right">ArrowRight</button></div>
+        <div class="setting-row"><span>Soft Drop</span><button class="bind-btn" data-action="down">ArrowDown</button></div>
+        <div class="setting-row"><span>Rotate</span><button class="bind-btn" data-action="rotate">ArrowUp</button></div>
+        <div class="setting-row"><span>Hard Drop</span><button class="bind-btn" data-action="hardDrop">Space</button></div>
+        <div class="setting-row"><span>Pause</span><button class="bind-btn" data-action="pause">KeyP</button></div>
+      </div>
+
+      <div class="settings-divider"></div>
+      <div class="settings-subtitle">JOYSTICK BUTTONS</div>
+      <div class="settings-list controller-binding-list">
+        <div class="setting-row"><span>Move Left</span><button class="gamepad-bind-btn" data-action="left">Button 1</button></div>
+        <div class="setting-row"><span>Move Right</span><button class="gamepad-bind-btn" data-action="right">Button 2</button></div>
+        <div class="setting-row"><span>Soft Drop</span><button class="gamepad-bind-btn" data-action="down">Button 3</button></div>
+        <div class="setting-row"><span>Rotate</span><button class="gamepad-bind-btn" data-action="rotate">Button 8</button></div>
+        <div class="setting-row"><span>Hard Drop</span><button class="gamepad-bind-btn" data-action="hardDrop">Button 1</button></div>
+      </div>
+
+      <div class="settings-footer">
+        <button id="resetDefaultsBtn" class="btn secondary small">RESET DEFAULTS</button>
+        <button id="saveSettingsBtn" class="btn primary small">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <p class="eyebrow">SYSTEM CHECK</p>
+      <h2>ONE SECOND CHANCE</h2>
+      <p>You have <b>30 seconds</b> to answer 2 of 3 cyber-security questions correctly.</p>
+      <div id="questionBox"></div>
+      <div class="timer"><div id="timerBar"></div></div>
+      <p id="questionStatus" class="message"></p>
+    </div>
+  </div>
+
+  <div id="pauseOverlay" class="settings-overlay hidden">
+    <div class="settings-panel">
+      <p class="eyebrow">PAUSE MENU</p>
+      <h2>GAME PAUSED</h2>
+      <p>Resume the run, save progress, or jump back to the main menu.</p>
+      <div class="settings-footer">
+        <button id="resumeBtn" class="btn primary small">RESUME</button>
+        <button id="saveGameBtn" class="btn secondary small">SAVE & EXIT</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOverOverlay" class="game-over-overlay hidden" aria-live="polite">
+    <div class="game-over-card">
+      <p class="eyebrow">SYSTEM FAILURE</p>
+      <h2>GAME OVER</h2>
+      <div class="game-over-score-wrap">
+        <span>FINAL SCORE</span>
+        <strong id="gameOverScore">0</strong>
+      </div>
+      <p id="gameOverMessage">The stack collapsed. Recalibrate and try again.</p>
+      <div class="game-over-actions">
+        <button id="gameOverRestartBtn" class="btn primary">RESTART RUN</button>
+        <button id="gameOverMainMenuBtn" class="btn secondary">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="game.js"></script>
+</body>
+</html>

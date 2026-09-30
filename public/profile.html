@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cyber Tetris Profile | Player Stats</title>
+  <meta name="description" content="View your Cyber Tetris profile, saved account details, and top score on the player stats page.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://localhost:3000/profile.html">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Cyber Tetris Player Profile">
+  <meta property="og:description" content="Check your saved email, username, and high score on the Cyber Tetris profile page.">
+  <meta property="og:image" content="http://localhost:3000/og-image.svg">
+  <meta property="og:url" content="http://localhost:3000/profile.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cyber Tetris Player Profile">
+  <meta name="twitter:description" content="View your account details and best score.">
+  <meta name="twitter:image" content="http://localhost:3000/og-image.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CYBER<span>TETRIS</span></div>
+    <a href="leaderboard.html">VIEW LEADERBOARD ↗</a>
+  </header>
+
+  <main class="shell">
+    <p class="eyebrow">PLAYER PROFILE</p>
+    <h1>WELCOME <span id="profileName">PLAYER</span></h1>
+
+    <section class="panel auth">
+      <div class="auth-grid">
+        <div>
+          <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
+          <p><strong>Username:</strong> <span id="profileUsername">-</span></p>
+          <p><strong>High Score:</strong> <span id="profileScore">0</span></p>
+        </div>
+        <div>
+          <button id="playNowBtn" class="btn primary">PLAY NOW</button>
+          <a href="index.html" class="btn secondary" style="display:inline-block; text-align:center; text-decoration:none; margin-top:12px;">RETURN TO MAIN MENU</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const savedUser = JSON.parse(localStorage.getItem('cyber-tetris-user') || 'null');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileUsername = document.getElementById('profileUsername');
+    const profileScore = document.getElementById('profileScore');
+
+    async function loadProfile() {
+      if (!savedUser || !savedUser.id) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      profileName.textContent = savedUser.username || 'PLAYER';
+      profileEmail.textContent = savedUser.email || 'Unknown';
+      profileUsername.textContent = savedUser.username || 'Unknown';
+
+      const res = await fetch(`/api/profile?userId=${savedUser.id}`);
+      const data = await res.json();
+      if (data && typeof data.score !== 'undefined') {
+        profileScore.textContent = Number(data.score).toLocaleString();
+      }
+    }
+
+    document.getElementById('playNowBtn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    loadProfile();
+  </script>
+</body>
+</html>
