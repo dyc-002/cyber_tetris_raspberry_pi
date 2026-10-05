@@ -854,6 +854,19 @@ function resetGame() {
   drawNext();
 }
 
+function requestGameFullscreen() {
+  const target = document.getElementById('gamePanelWrap') || document.getElementById('gamePanel');
+  if (!target) return;
+
+  if (document.fullscreenElement === target) {
+    return;
+  }
+
+  target.requestFullscreen?.().catch(() => {
+    document.body.classList.add('game-fullscreen');
+  });
+}
+
 function startGame() {
   if (!currentPiece) {
     resetGame();
@@ -864,6 +877,7 @@ function startGame() {
   challengeElapsedMs = 0;
   challengeLevel = 0;
   nextChallengeAt = 60000;
+  requestGameFullscreen();
   playSfx('start');
   if (musicEnabled && soundEnabled) {
     playMusicLoop();
