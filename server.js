@@ -80,7 +80,7 @@ const userSafe = (user) => ({
 const allLeaderboardRows = getLeaderboardRows;
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 const ensureSchema = () => {
   db.exec("PRAGMA journal_mode = WAL");
@@ -156,6 +156,8 @@ const getUsersOverview = db.prepare(`
   GROUP BY u.id
   ORDER BY score DESC, u.username ASC
 `);
+
+app.use(express.static(__dirname));
 
 app.post("/api/signup", (req, res) => {
   const email = normalizeEmail(req.body.email);

@@ -1077,6 +1077,8 @@ body.game-fullscreen .game-panel-shell {
   display: grid;
   place-items: center;
   padding: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 body.game-fullscreen .game-layout {
@@ -1085,6 +1087,8 @@ body.game-fullscreen .game-layout {
   gap: 18px;
   margin: 0;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 body.game-fullscreen .game-card {
@@ -1096,6 +1100,8 @@ body.game-fullscreen .game-card {
   background: rgba(12, 18, 23, 0.92);
   border: 1px solid rgba(57, 230, 165, 0.26);
   box-shadow: 0 0 22px rgba(57, 230, 165, 0.12);
+  position: relative;
+  z-index: 1;
 }
 
 body.game-fullscreen #game {
@@ -1109,10 +1115,13 @@ body.game-fullscreen #game {
 body.game-fullscreen .side-panel {
   padding: 14px;
   background: rgba(12, 18, 23, 0.88);
+  position: relative;
+  z-index: 1;
 }
 
-body.game-fullscreen .modal {
-  z-index: 200;
+body.game-fullscreen .modal,
+body.game-fullscreen .game-over-overlay {
+  z-index: 300;
   background: rgba(2, 8, 12, 0.88);
 }
 

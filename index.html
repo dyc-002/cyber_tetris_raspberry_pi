@@ -135,6 +135,7 @@
           <div class="stat level-stat"><span>LEVEL</span><strong id="level">1</strong></div>
           <div class="stat lines-stat"><span>LINES</span><strong id="lines">0</strong></div>
           <div class="stat status-stat"><span>STATUS</span><strong id="status">READY</strong></div>
+          <div class="stat guest-stat"><span>PLAYER</span><strong id="playerName">GUEST</strong></div>
           <div id="controllerIndicator" class="controller-indicator offline" aria-live="polite">
             <span class="controller-dot"></span>
             <strong>CONTROLLER OFFLINE</strong>
@@ -265,6 +266,54 @@
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.guestName = 'Guest';
+
+    const db = window.supabase.createClient(
+      "https://muqtfsyzrmfapxsjjmus.supabase.co",
+      "sb_publishable_y_vcrw4Rr5SJYi_A3AOMTg_uQX9gqBQ"
+    );
+
+    async function saveScore(name, score) {
+      const playerName = String(name || window.guestName || 'Guest').trim() || 'Guest';
+      const { error } = await db.from("scores").insert({ player_name: playerName, score: score });
+      if (error) console.error(error);
+    }
+
+    async function getTopScores() {
+      const { data, error } = await db
+        .from("scores")
+        .select("player_name, score")
+        .order("score", { ascending: false })
+        .limit(10);
+      return error ? [] : data;
+    }
+
+    const ownerParam = new URLSearchParams(window.location.search).get('owner');
+    const isOwnerView = ['1', 'true', 'debug', 'admin'].includes(String(ownerParam || '').toLowerCase());
+    if (isOwnerView) {
+      const ownerLogsLink = document.createElement('a');
+      ownerLogsLink.href = 'https://supabase.com/dashboard/project/muqtfsyzrmfapxsjjmus/logs';
+      ownerLogsLink.target = '_blank';
+      ownerLogsLink.rel = 'noreferrer';
+      ownerLogsLink.textContent = 'OWNER LOGS';
+      ownerLogsLink.style.position = 'fixed';
+      ownerLogsLink.style.right = '12px';
+      ownerLogsLink.style.bottom = '12px';
+      ownerLogsLink.style.zIndex = '9999';
+      ownerLogsLink.style.padding = '8px 10px';
+      ownerLogsLink.style.borderRadius = '999px';
+      ownerLogsLink.style.background = '#8ef9d2';
+      ownerLogsLink.style.color = '#041417';
+      ownerLogsLink.style.fontSize = '10px';
+      ownerLogsLink.style.fontWeight = '700';
+      ownerLogsLink.style.letterSpacing = '0.12em';
+      ownerLogsLink.style.textDecoration = 'none';
+      document.body.appendChild(ownerLogsLink);
+    }
+  </script>
 
   <script type="module" src="game.js"></script>
 </body>

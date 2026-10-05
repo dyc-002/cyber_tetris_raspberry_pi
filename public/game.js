@@ -36,6 +36,7 @@ let isPaused = false;
 let lastTime = 0;
 let dropAccumulator = 0;
 let guest = true;
+let guestName = 'Guest';
 let user = null;
 let animationFrameId = null;
 let combo = 0;
@@ -71,6 +72,7 @@ const scoreNode = document.getElementById('score');
 const levelNode = document.getElementById('level');
 const linesNode = document.getElementById('lines');
 const statusNode = document.getElementById('status');
+const playerNameNode = document.getElementById('playerName');
 const fxLayer = document.getElementById('fxLayer');
 const authPanel = document.getElementById('authPanel');
 const gamePanel = document.getElementById('gamePanel');
@@ -815,12 +817,23 @@ function triggerCyberChallenge() {
   }, 80);
 }
 
+function syncPlayerNameLabel() {
+  if (!playerNameNode) return;
+
+  const displayName = guest
+    ? String(guestName || 'Guest').trim() || 'Guest'
+    : String(user?.username || 'Player').trim() || 'Player';
+
+  playerNameNode.textContent = displayName.toUpperCase();
+}
+
 function syncStartButtonState() {
   if (!startBtn) return;
 
   startBtn.classList.toggle('active', isRunning);
   startBtn.textContent = isRunning ? 'RUNNING' : 'START GAME';
   startBtn.setAttribute('aria-pressed', String(isRunning));
+  syncPlayerNameLabel();
 }
 
 function resetGame() {
@@ -903,6 +916,13 @@ function endGame() {
     setTimeout(() => gameCard.classList.remove('shake'), 420);
   }
   playSfx('game-over');
+
+  if (typeof saveScore === 'function' && score > 0) {
+    const playerName = guest
+      ? String(guestName || 'Guest').trim() || 'Guest'
+      : String(user?.username || 'Player').trim() || 'Player';
+    saveScore(playerName, score).catch(() => undefined);
+  }
 
   if (!guest && user) {
     fetch('/api/scores', {
@@ -1339,8 +1359,12 @@ function bindInputs() {
   });
 
   document.getElementById('guestBtn').addEventListener('click', () => {
+    const requestedName = window.prompt('Choose a guest nickname', guestName || 'Guest');
+    guestName = String(requestedName || '').trim() || 'Guest';
+    window.guestName = guestName;
     guest = true;
     user = null;
+    syncPlayerNameLabel();
     authPanel.classList.add('hidden');
     gamePanel.classList.remove('hidden');
     introScreen.classList.add('hidden');

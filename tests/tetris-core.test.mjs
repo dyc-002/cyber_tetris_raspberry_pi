@@ -9,7 +9,7 @@ import {
   getDropInterval,
   getCyberSecurityQuestionByTime,
   getShapeRewardPool,
-} from '../public/tetris-core.mjs';
+} from '../tetris-core.mjs';
 
 test('createBoard creates the expected board shape', () => {
   const board = createBoard(10, 20);
