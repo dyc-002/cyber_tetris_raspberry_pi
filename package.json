@@ -2,10 +2,49 @@
   "name": "cyber-tetris",
   "version": "1.0.0",
   "private": true,
+  "description": "Standalone Cyber Tetris desktop game for Raspberry Pi",
+  "main": "main.cjs",
   "scripts": {
-    "start": "node server.js"
+    "start": "electron .",
+    "start:web": "node server.js",
+    "package:pi": "electron-builder --linux AppImage deb --arm64"
   },
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.cybertetris.game",
+    "productName": "Cyber Tetris",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "server.js",
+      "index.html",
+      "game.js",
+      "tetris-core.mjs",
+      "style.css",
+      "leaderboard.html",
+      "profile.html",
+      "favicon.svg",
+      "og-image.svg",
+      "site.webmanifest",
+      "!data/**",
+      "!public/**",
+      "!tests/**"
+    ],
+    "linux": {
+      "category": "Game",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "artifactName": "Cyber-Tetris-${version}-${arch}.${ext}"
+    }
   }
 }

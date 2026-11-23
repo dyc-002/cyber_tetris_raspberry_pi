@@ -1,56 +1,48 @@
-# Cyber Tetris — Raspberry Pi + Database + Leaderboard
+# Cyber Tetris
 
-## What is included
-- Professional dark cyber-security Tetris UI.
-- Guest mode: no user account and no score is sent to the database.
-- Sign-in mode: email + username; scores are saved for the signed-in user.
-- SQLite database stored locally on the Raspberry Pi.
-- Leaderboard reads from the database and sorts by each player's highest score.
-- Progressive difficulty: level increases every 10 cleared lines.
-- One second-chance system per game.
-- Second chance: 3 multiple-choice cyber-security questions, 30 seconds total, 2/3 correct required.
-- Question difficulty increases with score: 0–999, 1000–1999, 2000+.
+Cyber Tetris is a standalone desktop game for Raspberry Pi. It opens in its own application window, works without a web browser or internet connection, and saves its local data in the current user's application-data folder.
 
-## Run on a Raspberry Pi
+## Raspberry Pi requirements
 
-Install Node.js (Node 18+ recommended), then:
+- Raspberry Pi 4 or newer
+- 64-bit Raspberry Pi OS
+- Node.js 22 or newer to build from source
+- Official 7-inch Raspberry Pi Touch Display v1.1 supported at 800x480
 
-```bash
-cd cyber-tetris
-npm install
-npm start
-```
+The packaged game includes its own Chromium runtime; Node.js is only needed when building the packages from source.
 
-On the Pi, open:
-http://localhost:3000
+## Build Raspberry Pi packages
 
-From another device on the same network, find the Pi's IP with:
+Run these commands on the Raspberry Pi or another Linux ARM64 machine:
 
 ```bash
-hostname -I
+npm ci
+npm run package:pi
 ```
 
-Then open:
-http://PI_IP_ADDRESS:3000
+The `dist` directory will contain an ARM64 AppImage and Debian package.
 
-Example:
-http://192.168.1.50:3000
+To install the Debian package:
 
-## Important database note
-The SQLite database is created automatically at:
-`data/tetris.db`
+```bash
+sudo apt install ./dist/Cyber-Tetris-1.0.0-arm64.deb
+```
 
-Back it up if you want to keep the leaderboard when reinstalling the project.
+To launch the AppImage:
 
-## Hardware
-The game is browser-based, so the Raspberry Pi can run it on a monitor/TV. A USB keyboard works immediately. For physical arcade buttons, connect buttons to GPIO and use a small GPIO-to-keyboard/controller layer; the web game itself already supports the keyboard controls.
+```bash
+chmod +x ./dist/Cyber-Tetris-1.0.0-arm64.AppImage
+./dist/Cyber-Tetris-1.0.0-arm64.AppImage
+```
 
-## Production/security improvements
-For a real public deployment, add:
-- password authentication instead of only email/username identity,
-- server-side rate limiting,
-- HTTPS,
-- stronger session/authentication,
-- validation and anti-cheat measures,
-- admin controls,
-- regular database backups.
+The exact package filenames follow the version in `package.json`.
+
+## Play
+
+Choose **Play as Guest**, then select **Start Game**. Use A/D or the arrow keys to move, W or Up to rotate, S or Down to drop, Space to hard-drop, and P to pause. Touch controls appear on the Pi display. The live score is shown beside the board.
+
+The app can also be started in development mode with `npm start`. Its local SQLite database is stored under the operating system's application-data folder, so it is kept separate from the installed application files.
+
+## Development web server
+
+The optional `npm run start:web` command serves the original browser version at `http://localhost:3000`. This is only for development; the Raspberry Pi game package does not require a browser or a web server to be started manually.

@@ -6,8 +6,9 @@ const { DatabaseSync } = require("node:sqlite");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 const PASSWORD_SALT = "cyber-tetris-salt-v1";
-const dataDir = path.join(__dirname, "data");
+const dataDir = process.env.CYBER_TETRIS_DATA_DIR || path.join(__dirname, "data");
 fs.mkdirSync(dataDir, { recursive: true });
 const db = new DatabaseSync(path.join(dataDir, "tetris.db"));
 
@@ -80,8 +81,6 @@ const userSafe = (user) => ({
 const allLeaderboardRows = getLeaderboardRows;
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static(__dirname));
-
 const ensureSchema = () => {
   db.exec("PRAGMA journal_mode = WAL");
   db.exec(`
@@ -383,6 +382,8 @@ app.get("/api/leaderboard", (req, res) => {
   res.json({ rows: pageRows, total, page, limit, pages: Math.max(1, Math.ceil(total / limit)) });
 });
 
-app.listen(PORT, () => {
-  console.log(`Cyber Tetris running on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Cyber Tetris running on http://${HOST}:${server.address().port}`);
 });
+
+module.exports = server;

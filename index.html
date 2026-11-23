@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cyber Tetris | Arcade Puzzle Game with Leaderboards</title>
-  <meta name="description" content="Play Cyber Tetris, a neon cyberpunk arcade puzzle game with leaderboard tracking, player profiles, and browser-based gameplay.">
+  <title>Cyber Tetris | Desktop Arcade Game</title>
+  <meta name="description" content="Play Cyber Tetris as a standalone desktop arcade game.">
   <meta name="keywords" content="Cyber Tetris, arcade game, puzzle game, cyberpunk Tetris, leaderboard, Raspberry Pi game, online Tetris">
   <meta name="author" content="Cyber Tetris">
   <meta name="theme-color" content="#0b1217">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="canonical" href="http://localhost:3000/">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="site.webmanifest">
@@ -22,6 +22,11 @@
   <meta name="twitter:title" content="Cyber Tetris | Arcade Puzzle Game">
   <meta name="twitter:description" content="Play Cyber Tetris and compete on the live leaderboard.">
   <meta name="twitter:image" content="http://localhost:3000/og-image.svg">
+  <script>
+    if (new URLSearchParams(window.location.search).has('desktop')) {
+      document.documentElement.classList.add('desktop-app');
+    }
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -99,7 +104,8 @@
     </section>
 
     <section id="authPanel" class="panel auth">
-      <h2>Choose how to play</h2>
+      <h2>CYBER TETRIS</h2>
+      <p class="intro">Stack. Survive. Secure. Use the keyboard or touchscreen controls.</p>
       <div class="auth-grid">
         <button id="guestBtn" class="btn secondary">PLAY AS GUEST</button>
         <div>
@@ -266,54 +272,6 @@
       </div>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    window.guestName = 'Guest';
-
-    const db = window.supabase.createClient(
-      "https://muqtfsyzrmfapxsjjmus.supabase.co",
-      "sb_publishable_y_vcrw4Rr5SJYi_A3AOMTg_uQX9gqBQ"
-    );
-
-    async function saveScore(name, score) {
-      const playerName = String(name || window.guestName || 'Guest').trim() || 'Guest';
-      const { error } = await db.from("scores").insert({ player_name: playerName, score: score });
-      if (error) console.error(error);
-    }
-
-    async function getTopScores() {
-      const { data, error } = await db
-        .from("scores")
-        .select("player_name, score")
-        .order("score", { ascending: false })
-        .limit(10);
-      return error ? [] : data;
-    }
-
-    const ownerParam = new URLSearchParams(window.location.search).get('owner');
-    const isOwnerView = ['1', 'true', 'debug', 'admin'].includes(String(ownerParam || '').toLowerCase());
-    if (isOwnerView) {
-      const ownerLogsLink = document.createElement('a');
-      ownerLogsLink.href = 'https://supabase.com/dashboard/project/muqtfsyzrmfapxsjjmus/logs';
-      ownerLogsLink.target = '_blank';
-      ownerLogsLink.rel = 'noreferrer';
-      ownerLogsLink.textContent = 'OWNER LOGS';
-      ownerLogsLink.style.position = 'fixed';
-      ownerLogsLink.style.right = '12px';
-      ownerLogsLink.style.bottom = '12px';
-      ownerLogsLink.style.zIndex = '9999';
-      ownerLogsLink.style.padding = '8px 10px';
-      ownerLogsLink.style.borderRadius = '999px';
-      ownerLogsLink.style.background = '#8ef9d2';
-      ownerLogsLink.style.color = '#041417';
-      ownerLogsLink.style.fontSize = '10px';
-      ownerLogsLink.style.fontWeight = '700';
-      ownerLogsLink.style.letterSpacing = '0.12em';
-      ownerLogsLink.style.textDecoration = 'none';
-      document.body.appendChild(ownerLogsLink);
-    }
-  </script>
 
   <script type="module" src="game.js"></script>
 </body>
